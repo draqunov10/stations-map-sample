@@ -208,6 +208,7 @@ function App() {
           />
         </div>
       )}
+      <p className="text-sm text-gray-400 absolute bottom-2 left-2">Sample by Led Salazar</p>
     </div>
   );
 }
