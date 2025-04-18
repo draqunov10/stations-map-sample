@@ -173,7 +173,7 @@ function App() {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-4 gap-4 text-center font-bold mb-4 items-center">
+        <div className="grid grid-cols-4 text-center font-bold mb-4 items-center">
           <div>Station Name</div>
           <div>Location</div>
           <div>Status</div>
