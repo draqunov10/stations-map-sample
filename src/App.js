@@ -20,9 +20,9 @@ function App() {
   const mapRef = useRef(null);
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [stationCardData, setStationCardData] = useState([
-    { stationName: 'Station 1', location: '14.656041, 121.033700', status: 'Online', transmitterReading: 120 },
+    { stationName: 'Station 1', location: '14.656041, 121.033700', status: 'Online', transmitterReading: 120.21 },
     { stationName: 'Station 2', location: '14.675542, 121.043701', status: 'Offline', transmitterReading: 110 },
-    { stationName: 'Station 3', location: '14.694543, 121.053702', status: 'Online', transmitterReading: 115 },
+    { stationName: 'Station 3', location: '14.694543, 121.053702', status: 'Online', transmitterReading: 115.50 },
   ]);
   const [centerLocation, setCenterLocation] = useState('');
   const [isModifyingCard, setIsModifyingCard] = useState(false);
@@ -157,7 +157,10 @@ function App() {
     <div className="App" style={{ display: 'flex', height: '100vh' }}>
       <div className="bg-gray-900 text-white p-4" style={{ width: '30%' }}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold">Menu</h3>
+          <div className="flex items-center space-x-2">
+            <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-white"></div>
+            <h3 className="text-2xl font-extrabold">Sample App</h3>
+          </div>
           <div className="flex space-x-2">
             <button
               className={`bg-gray-700 p-2 pl-4 rounded-full hover:bg-gray-600 flex items-center space-x-2 ${isAddingCard || isModifyingCard ? 'pointer-events-none opacity-50' : ''}`}
@@ -170,7 +173,7 @@ function App() {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-4 gap-4 text-center font-bold mb-4">
+        <div className="grid grid-cols-4 gap-4 text-center font-bold mb-4 items-center">
           <div>Station Name</div>
           <div>Location</div>
           <div>Status</div>

@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 const AddCardModal = ({ onCancel, onAddCard, centerLocation }) => {
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     stationName: '',
     status: 'Online',
     transmitterReading: ''
   });
+
+  useEffect(() => {
+    if (formData.status === 'Offline') {
+      setFormData((prevData) => ({ ...prevData, transmitterReading: '' }));
+    }
+  }, [formData.status]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -51,8 +57,14 @@ const AddCardModal = ({ onCancel, onAddCard, centerLocation }) => {
           name="transmitterReading"
           placeholder="Transmitter Reading (psi)"
           value={formData.transmitterReading}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^\d*(\.\d{0,2})?$/.test(value)) {
+              handleInputChange(e);
+            }
+          }}
           className="w-3/4 p-2 border border-gray-700 bg-gray-800 text-white rounded"
+          disabled={formData.status === 'Offline'}
         />
       </div>
       <div className="flex justify-center mt-4">

@@ -2,15 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const StationCard = ({ stationName, location, status, transmitterReading, onModify, onClick }) => {
+  const borderColor = status === 'Online' ? 'border-green-500' : status === 'Offline' ? 'border-red-500' : 'border-white';
+  const statusColor = status === 'Online' ? 'text-green-500' : status === 'Offline' ? 'text-red-500' : 'text-white';
+
   return (
     <div
-      className="grid grid-cols-4 gap-4 border border-white p-4 rounded relative h-20 cursor-pointer items-center justify-items-center"
+      className={`grid grid-cols-4 gap-4 border ${borderColor} p-4 rounded relative h-20 cursor-pointer items-center justify-items-center`}
       onClick={onClick}
     >
       <div className="flex items-center justify-center h-full">{stationName}</div>
       <div className="flex items-center justify-center h-full">{location}</div>
-      <div className="flex items-center justify-center h-full">{status}</div>
-      <div className="flex items-center justify-center h-full">{transmitterReading} psi</div>
+      <div className={`flex items-center justify-center h-full ${statusColor}`}>{status}</div>
+      <div className="flex items-center justify-center h-full">
+        {status === 'Offline' ? '-' : `${parseFloat(transmitterReading).toFixed(2)} psi`}
+      </div>
       <button className="absolute top-2 right-2" onClick={(e) => { e.stopPropagation(); onModify(); }}>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-8 h-8 text-white">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75v.008M12 12v.008M12 17.25v.008" />

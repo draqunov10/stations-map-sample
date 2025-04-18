@@ -88,7 +88,12 @@ const ModifyCardModal = ({ stationData, onCancel, onSave, mapRef }) => {
           name="transmitterReading"
           placeholder="Transmitter Reading (psi)"
           value={formData.transmitterReading}
-          onChange={handleChange}
+          onChange={(e) => {
+            const value = e.target.value;
+            if (/^\d*(\.\d{0,2})?$/.test(value)) {
+              handleChange(e);
+            }
+          }}
           className="w-3/4 p-2 border border-gray-700 bg-gray-800 text-white rounded"
         />
       </div>
