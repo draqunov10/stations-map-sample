@@ -20,9 +20,12 @@ function App() {
   const mapRef = useRef(null);
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [stationCardData, setStationCardData] = useState([
-    { stationName: 'Station 1', location: '14.656041, 121.033700', status: 'Online', transmitterReading: 120.21 },
-    { stationName: 'Station 2', location: '14.675542, 121.043701', status: 'Offline', transmitterReading: 110 },
-    { stationName: 'Station 3', location: '14.694543, 121.053702', status: 'Online', transmitterReading: 115.50 },
+    { stationName: 'TPH', location: '14.165081, 121.162698', status: 'Online', transmitterReading: 120.21 },
+    { stationName: 'BP1', location: '14.171842, 121.158299', status: 'Online', transmitterReading: 130.50 },
+    { stationName: 'BP2', location: '14.171364, 121.162666', status: 'Offline', transmitterReading: 110 },
+    { stationName: 'DW1', location: '14.174718, 121.152125', status: 'Online', transmitterReading: 125.75 },
+    { stationName: 'DW4', location: '14.176632, 121.149480', status: 'Offline', transmitterReading: 0 },
+    { stationName: 'DW2', location: '14.172050, 121.140575', status: 'Online', transmitterReading: 115.50 },
   ]);
   const [centerLocation, setCenterLocation] = useState('');
   const [isModifyingCard, setIsModifyingCard] = useState(false);
@@ -30,7 +33,7 @@ function App() {
 
   useEffect(() => {
     if (!mapRef.current) {
-      mapRef.current = L.map('map').setView([14.674001, 121.043700], 13);
+      mapRef.current = L.map('map').setView([14.168243, 121.153708], 15);
       L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
       }).addTo(mapRef.current);
