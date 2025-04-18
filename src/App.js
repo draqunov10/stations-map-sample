@@ -147,13 +147,15 @@ function App() {
     }
   };
 
-  // Move inline styles to a CSS class
-  const modalStyle = {
+  const mapModalStyle = {
     position: 'absolute',
-    bottom: '20px',
-    left: '50%',
+    bottom: '5%',
     transform: 'translateX(-50%)',
-    zIndex: 1000,
+  };
+
+  const calculateMapOffset = () => {
+    const mapElement = document.getElementById('map');
+    return mapElement ? mapElement.offsetLeft : 0;
   };
 
   return (
@@ -199,13 +201,23 @@ function App() {
       <div id="map" style={{ flex: 1 }}></div>
 
       {isAddingCard && (
-        <div style={modalStyle}>
+        <div
+          style={{
+            ...mapModalStyle,
+            left: `calc(35% + ${calculateMapOffset()}px)`
+          }}
+        >
           <AddCardModal onCancel={handleCancelAddCard} onAddCard={handleAddCard} centerLocation={centerLocation} />
         </div>
       )}
 
       {isModifyingCard && (
-        <div style={modalStyle}>
+        <div
+          style={{
+            ...mapModalStyle,
+            left: `calc(35% + ${calculateMapOffset()}px)`
+          }}
+        >
           <ModifyCardModal
             stationData={selectedCard}
             onCancel={handleCancelModifyCard}
