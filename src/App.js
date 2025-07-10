@@ -12,24 +12,73 @@ import greenIcon from './icons/greenIcon';
 import redIcon from './icons/redIcon';
 import StationCard from './components/StationCard';
 import ModifyCardModal from './components/ModifyCardModal';
+import sampleStations from './backend/sample_stations.json';
 
 // Apply the default marker icon globally
 L.Marker.prototype.options.icon = DefaultIcon;
 
+// Helper function to determine station status based on equipment
+const getStationStatus = (equipment) => {
+  const runningEquipment = equipment.filter(eq => eq.Status === 'RUN');
+  const faultEquipment = equipment.filter(eq => eq.Status === 'FAULT');
+  
+  if (faultEquipment.length > 0) return 'Offline';
+  if (runningEquipment.length > 0) return 'Online';
+  return 'Offline';
+};
+
+// Helper function to get transmitter reading
+const getTransmitterReading = (equipment) => {
+  const transmitter = equipment.find(eq => eq.Name === 'Pressure Transmitter');
+  return transmitter ? parseFloat(transmitter.Reading || 0) : 0;
+};
+
 function App() {
   const mapRef = useRef(null);
   const [isAddingCard, setIsAddingCard] = useState(false);
-  const [stationCardData, setStationCardData] = useState([
-    { stationName: 'TPH', location: '14.165081, 121.162698', status: 'Online', transmitterReading: 120.21 },
-    { stationName: 'BP1', location: '14.171842, 121.158299', status: 'Online', transmitterReading: 130.50 },
-    { stationName: 'BP2', location: '14.171364, 121.162666', status: 'Offline', transmitterReading: 110 },
-    { stationName: 'DW1', location: '14.174718, 121.152125', status: 'Online', transmitterReading: 125.75 },
-    { stationName: 'DW4', location: '14.176632, 121.149480', status: 'Offline', transmitterReading: 0 },
-    { stationName: 'DW2', location: '14.172050, 121.140575', status: 'Online', transmitterReading: 115.50 },
-  ]);
+  const [stationCardData, setStationCardData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [centerLocation, setCenterLocation] = useState('');
   const [isModifyingCard, setIsModifyingCard] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        // For Google Apps Script, try GET first with no-cors mode
+        const response = await fetch(`https://script.google.com/macros/s/AKfycbzs0dJDAYK9mhTMdGBrawynn2Em2KB1tnBp5U9XKY-HOKFe47BuY20pfq7FyDPs1RnW/exec`, {
+          method: 'POST',
+          mode: 'cors', // This prevents CORS errors but limits response access
+        });
+        
+        const data = await response.json();
+        console.log('Fetched data:', data);
+        
+        // Set the fetched data if it's an array
+        if (Array.isArray(data) && data.length > 0) {
+          setStationCardData(data);
+        } else {
+          console.log('Invalid data format, using fallback');
+          loadFallbackData();
+        }
+        
+      } catch (error) {
+        console.error('Fetch error:', error);
+        console.log('Using fallback data - fetch failed due to CORS or network issues');
+        loadFallbackData();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const loadFallbackData = () => {
+      // Use the imported sample stations data
+      setStationCardData(sampleStations);
+    };
+
+    fetchData();
+  }, []); // Empty dependency array means it runs once on mount
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -42,10 +91,11 @@ function App() {
       }).addTo(mapRef.current);
 
       // Add markers for each card location
-      stationCardData.forEach(data => {
-        const [lat, lng] = data.location.split(',').map(coord => parseFloat(coord.trim()));
-        const icon = data.status === 'Online' ? greenIcon : redIcon;
-        L.marker([lat, lng], { icon }).addTo(mapRef.current).bindPopup(`<b>${data.stationName}</b><br>${data.location}`);
+      stationCardData.forEach(station => {
+        const [lat, lng] = station.location.split(',').map(coord => parseFloat(coord.trim()));
+        const status = getStationStatus(station.equipment);
+        const icon = status === 'Online' ? greenIcon : redIcon;
+        L.marker([lat, lng], { icon }).addTo(mapRef.current).bindPopup(`<b>${station.stationName}</b><br>${station.location}`);
       });
     }
     return () => {
@@ -101,18 +151,19 @@ function App() {
     // Add a new marker to the map for the new card
     if (mapRef.current) {
       const [lat, lng] = newCard.location.split(',').map(coord => parseFloat(coord.trim()));
-      const icon = newCard.status === 'Online' ? greenIcon : redIcon;
+      const status = getStationStatus(newCard.equipment);
+      const icon = status === 'Online' ? greenIcon : redIcon;
       L.marker([lat, lng], { icon }).addTo(mapRef.current).bindPopup(`<b>${newCard.stationName}</b><br>${newCard.location}`);
     }
   };
 
-  const handleModifyButtonClick = (card) => {
-    setSelectedCard(card);
+  const handleModifyButtonClick = (station) => {
+    setSelectedCard(station);
     setIsModifyingCard(true);
 
     // Center the map at the marker's location
     if (mapRef.current) {
-      const [lat, lng] = card.location.split(',').map(coord => parseFloat(coord.trim()));
+      const [lat, lng] = station.location.split(',').map(coord => parseFloat(coord.trim()));
       mapRef.current.setView([lat, lng], mapRef.current.getZoom());
     }
   };
@@ -140,9 +191,9 @@ function App() {
     setSelectedCard(null);
   };
 
-  const handleCardClick = (card) => {
+  const handleCardClick = (station) => {
     if (mapRef.current) {
-      const [lat, lng] = card.location.split(',').map(coord => parseFloat(coord.trim()));
+      const [lat, lng] = station.location.split(',').map(coord => parseFloat(coord.trim()));
       mapRef.current.setView([lat, lng], mapRef.current.getZoom());
     }
   };
@@ -187,17 +238,31 @@ function App() {
         
         {/* Station Cards */}
         <div className={`flex-1 overflow-y-auto space-y-3 pr-2 station-cards-container ${isAddingCard || isModifyingCard ? 'pointer-events-none opacity-50' : ''}`}>
-          {stationCardData.map((data, index) => (
-            <StationCard
-              key={index}
-              stationName={data.stationName}
-              location={data.location}
-              status={data.status}
-              transmitterReading={data.transmitterReading}
-              onModify={() => handleModifyButtonClick(data)}
-              onClick={() => handleCardClick(data)}
-            />
-          ))}
+          {isLoading ? (
+            // Loading Animation
+            <div className="flex flex-col items-center justify-center h-64 space-y-4">
+              <div className="relative">
+                <div className="w-12 h-12 border-4 border-gray-600 border-t-blue-500 rounded-full animate-spin"></div>
+              </div>
+              <div className="text-center">
+                <p className="text-gray-300 font-medium">Loading Stations...</p>
+                <p className="text-gray-500 text-sm mt-1">Fetching data from server</p>
+              </div>
+            </div>
+          ) : (
+            stationCardData.map((station, index) => (
+              <StationCard
+                key={index}
+                station={station}
+                stationName={station.stationName}
+                location={station.location}
+                status={getStationStatus(station.equipment)}
+                transmitterReading={getTransmitterReading(station.equipment)}
+                onModify={() => handleModifyButtonClick(station)}
+                onClick={() => handleCardClick(station)}
+              />
+            ))
+          )}
         </div>
       </div>
       <div id="map" style={{ flex: 1 }}></div>
