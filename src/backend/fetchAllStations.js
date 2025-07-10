@@ -61,13 +61,18 @@ export async function fetchAllStationsData(spreadsheetId, maxRows = 50) {
       }
       
       if (headerRowIndex !== -1) {
-        // Get headers
+        // Get headers and deduplicate them
         const headers = [];
+        const seenHeaders = new Set();
+        
         for (let col = 0; col < sheet.columnCount; col++) {
           const headerCell = sheet.getCell(headerRowIndex, col);
           const headerValue = headerCell.value || '';
-          if (headerValue.trim()) {
-            headers.push(headerValue.trim());
+          const cleanHeader = headerValue.trim();
+          
+          if (cleanHeader && !seenHeaders.has(cleanHeader)) {
+            headers.push(cleanHeader);
+            seenHeaders.add(cleanHeader);
           }
         }
         
@@ -76,10 +81,18 @@ export async function fetchAllStationsData(spreadsheetId, maxRows = 50) {
           const equipment = {};
           let hasData = false;
           
+          // Use a Set to track which columns we've already processed
+          const processedColumns = new Set();
+          
           for (let col = 0; col < headers.length; col++) {
+            const header = headers[col];
+            if (!header || processedColumns.has(header)) continue;
+            
+            processedColumns.add(header);
+            
             const cell = sheet.getCell(row, col);
             const cellValue = cell.value || '';
-            equipment[headers[col]] = cellValue;
+            equipment[header] = cellValue;
             if (cellValue) hasData = true;
           }
           
@@ -150,11 +163,19 @@ function cleanEquipmentData(equipment) {
     
     seenNames.add(name);
     
-    // Clean up the equipment object
+    // Clean up the equipment object and remove duplicate keys
     const cleanedItem = {};
+    const processedKeys = new Set();
+    
     for (const [key, value] of Object.entries(item)) {
+      // Skip if we've already processed this key
+      if (processedKeys.has(key)) continue;
+      
+      processedKeys.add(key);
+      
       // Only include non-empty values or convert empty strings to null for better JSON
-      cleanedItem[key] = value && value.toString().trim() ? value : null;
+      const cleanValue = value && value.toString().trim() ? value.toString().trim() : null;
+      cleanedItem[key] = cleanValue;
     }
     
     cleaned.push(cleanedItem);
