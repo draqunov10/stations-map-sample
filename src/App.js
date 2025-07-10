@@ -73,7 +73,6 @@ function App() {
     };
 
     const loadFallbackData = () => {
-      // Use the imported sample stations data
       setStationCardData(sampleStations);
     };
 
