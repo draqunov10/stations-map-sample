@@ -2,6 +2,28 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Environment Setup
+
+Before running the application, you need to set up environment variables for Google Sheets integration:
+
+1. Copy the `.env.example` file to `.env`:
+   ```
+   cp .env.example .env
+   ```
+
+2. Fill in your Google Service Account credentials in the `.env` file:
+   - `GOOGLE_SERVICE_ACCOUNT_EMAIL`: Your service account email
+   - `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`: Your service account private key (keep the quotes and newlines)
+   - `GOOGLE_PROJECT_ID`: Your Google Cloud project ID
+   - `GOOGLE_SPREADSHEET_ID`: The ID of your Google Spreadsheet
+
+3. Validate your environment setup:
+   ```
+   node src/backend/validateEnv.js
+   ```
+
+**Important**: Never commit the `.env` file to version control. It contains sensitive credentials.
+
 ## Available Scripts
 
 In the project directory, you can run:

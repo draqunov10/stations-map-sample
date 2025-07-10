@@ -1,19 +1,22 @@
 /* eslint-disable no-unused-vars */
 import { JWT } from 'google-auth-library'
 import { GoogleSpreadsheet } from 'google-spreadsheet';
-import creds from './endless-fire-460619-i4-a2e8c1a5298a.json' with { type: 'json' };
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // Initialize auth
 const serviceAccountAuth = new JWT({
-  email: creds.client_email,
-  key: creds.private_key,
+  email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+  key: process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY?.replace(/\\n/g, '\n'),
   scopes: [
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive.file',
   ],
 });
 
-const spreadsheetId = '1s2T_kmmnFivfe-nQSI7rL9-WqNIMPw7BcrS7kTLj7hg';
+const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID;
 
 export async function fetchAllStationsData(maxRows = 50) {
   try {
