@@ -286,7 +286,7 @@ function App() {
         
         {/* Stations Header */}
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-white mb-2">Stations</h2>
+          <h2 className="text-lg font-semibold text-white mb-2">Stations ({stationCardData.length})</h2>
           <div className="h-px bg-gray-600"></div>
         </div>
         
