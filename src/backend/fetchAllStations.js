@@ -13,7 +13,9 @@ const serviceAccountAuth = new JWT({
   ],
 });
 
-export async function fetchAllStationsData(spreadsheetId, maxRows = 50) {
+const spreadsheetId = '1s2T_kmmnFivfe-nQSI7rL9-WqNIMPw7BcrS7kTLj7hg';
+
+export async function fetchAllStationsData(maxRows = 50) {
   try {
     const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
@@ -186,10 +188,8 @@ function cleanEquipmentData(equipment) {
 
 // Main execution
 async function main_test() {
-  const spreadsheetId = '1s2T_kmmnFivfe-nQSI7rL9-WqNIMPw7BcrS7kTLj7hg';
-  
   console.log('Fetching all station data...');
-  const allStations = await fetchAllStationsData(spreadsheetId);
+  const allStations = await fetchAllStationsData();
   
   console.log('\n=== STATIONS SUMMARY ===');
   console.log(`Total Stations: ${allStations.length}`);
