@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 
 const StationCard = ({ stationName, location, status, transmitterReading, onModify, onClick }) => {
