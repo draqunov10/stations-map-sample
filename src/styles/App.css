@@ -20,3 +20,54 @@
 #map {
   z-index: 0;
 }
+
+/* Custom dark theme scrollbar styles */
+/* Webkit-based browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #374151; /* gray-700 */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6b7280; /* gray-500 */
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; /* gray-400 */
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #6b7280 #374151; /* thumb color, track color */
+}
+
+/* Station cards container specific scrollbar styling */
+.station-cards-container {
+  scrollbar-width: thin;
+  scrollbar-color: #6b7280 #374151;
+}
+
+.station-cards-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.station-cards-container::-webkit-scrollbar-track {
+  background: #374151;
+  border-radius: 4px;
+}
+
+.station-cards-container::-webkit-scrollbar-thumb {
+  background: #6b7280;
+  border-radius: 4px;
+}
+
+.station-cards-container::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

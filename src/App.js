@@ -160,7 +160,7 @@ function App() {
 
   return (
     <div className="App" style={{ display: 'flex', height: '100vh' }}>
-      <div className="bg-gray-900 text-white p-4" style={{ width: '30%' }}>
+      <div className="bg-gray-900 text-white p-4 flex flex-col" style={{ width: '30%' }}>
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center space-x-2">
             <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-white"></div>
@@ -178,13 +178,15 @@ function App() {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-4 text-center font-bold mb-4 items-center">
-          <div>Station Name</div>
-          <div>Location</div>
-          <div>Status</div>
-          <div>Transmitter Reading</div>
+        
+        {/* Stations Header */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-white mb-2">Stations</h2>
+          <div className="h-px bg-gray-600"></div>
         </div>
-        <div className={`space-y-4 ${isAddingCard || isModifyingCard ? 'pointer-events-none opacity-50' : ''}`}>
+        
+        {/* Station Cards */}
+        <div className={`flex-1 overflow-y-auto space-y-3 pr-2 station-cards-container ${isAddingCard || isModifyingCard ? 'pointer-events-none opacity-50' : ''}`}>
           {stationCardData.map((data, index) => (
             <StationCard
               key={index}
