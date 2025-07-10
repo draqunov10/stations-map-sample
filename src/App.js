@@ -136,9 +136,9 @@ function App() {
     }
   }, [isAddingCard]);
 
-  const handleAddButtonClick = () => {
-    setIsAddingCard(true);
-  };
+  // const handleAddButtonClick = () => {
+  //   setIsAddingCard(true);
+  // };
 
   const handleRefreshButtonClick = async () => {
     setIsLoading(true);
