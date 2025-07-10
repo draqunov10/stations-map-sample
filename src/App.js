@@ -140,6 +140,50 @@ function App() {
     setIsAddingCard(true);
   };
 
+  const handleRefreshButtonClick = async () => {
+    setIsLoading(true);
+    try {
+      // For Google Apps Script, try GET first with no-cors mode
+      const response = await fetch(`https://script.google.com/macros/s/AKfycbzs0dJDAYK9mhTMdGBrawynn2Em2KB1tnBp5U9XKY-HOKFe47BuY20pfq7FyDPs1RnW/exec`, {
+        method: 'POST',
+        mode: 'cors', // This prevents CORS errors but limits response access
+      });
+      
+      const data = await response.json();
+      console.log('Refreshed data:', data);
+      
+      // Set the fetched data if it's an array
+      if (Array.isArray(data) && data.length > 0) {
+        setStationCardData(data);
+        
+        // Clear existing markers and add new ones
+        if (mapRef.current) {
+          mapRef.current.eachLayer((layer) => {
+            if (layer instanceof L.Marker) {
+              mapRef.current.removeLayer(layer);
+            }
+          });
+          
+          // Add markers for each refreshed station
+          data.forEach(station => {
+            const [lat, lng] = station.location.split(',').map(coord => parseFloat(coord.trim()));
+            const status = getStationStatus(station.equipment);
+            const icon = status === 'Online' ? greenIcon : redIcon;
+            L.marker([lat, lng], { icon }).addTo(mapRef.current).bindPopup(`<b>${station.stationName}</b><br>${station.location}`);
+          });
+        }
+      } else {
+        console.log('Invalid data format during refresh, keeping current data');
+      }
+      
+    } catch (error) {
+      console.error('Refresh error:', error);
+      console.log('Refresh failed, keeping current data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCancelAddCard = () => {
     setIsAddingCard(false);
   };
@@ -214,18 +258,29 @@ function App() {
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center space-x-2">
             <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-white"></div>
-            <h3 className="text-2xl font-extrabold">Sample App</h3>
+            <h3 className="text-2xl font-extrabold">Sample Monitoring App</h3>
           </div>
           <div className="flex space-x-2">
-            <button
+
+            {/* <button
               className={`bg-gray-700 p-2 pl-4 rounded-full hover:bg-gray-600 flex items-center space-x-2 ${isAddingCard || isModifyingCard ? 'pointer-events-none opacity-50' : ''}`}
               onClick={handleAddButtonClick}
             >
-              <span className="text-white">Add Station</span>
+              <span className="text-white">Add</span>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 text-white">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
               </svg>
+            </button> */}
+
+            <button className={`bg-gray-700 p-2 pl-4 rounded-full hover:bg-gray-600 flex items-center space-x-2 ${isAddingCard || isModifyingCard ? 'pointer-events-none opacity-50' : ''}`} 
+              onClick={handleRefreshButtonClick}
+            >
+              <span className="text-white">Refresh</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-5 h-5 text-white">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
             </button>
+
           </div>
         </div>
         
@@ -236,7 +291,7 @@ function App() {
         </div>
         
         {/* Station Cards */}
-        <div className={`flex-1 overflow-y-auto space-y-3 pr-2 station-cards-container ${isAddingCard || isModifyingCard ? 'pointer-events-none opacity-50' : ''}`}>
+        <div className={`flex-1 overflow-y-auto space-y-3 pr-2 mb-4 station-cards-container ${isAddingCard || isModifyingCard ? 'pointer-events-none opacity-50' : ''}`}>
           {isLoading ? (
             // Loading Animation
             <div className="flex flex-col items-center justify-center h-64 space-y-4">
@@ -292,7 +347,7 @@ function App() {
           />
         </div>
       )}
-      <p className="text-sm text-gray-400 absolute bottom-2 left-2">Sample by Led Salazar</p>
+      <p className="text-sm text-gray-400 absolute bottom-2 left-4">Sample by Led Salazar</p>
     </div>
   );
 }

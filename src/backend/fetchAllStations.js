@@ -189,10 +189,18 @@ function cleanEquipmentData(equipment) {
   return cleaned;
 }
 
+async function fetchStationData() {
+  const response = await fetch(`https://script.google.com/macros/s/AKfycbzs0dJDAYK9mhTMdGBrawynn2Em2KB1tnBp5U9XKY-HOKFe47BuY20pfq7FyDPs1RnW/exec`, {
+    method: 'POST',
+    mode: 'cors', // This prevents CORS errors but limits response access
+  })
+  return await response.json();
+}
+
 // Main execution
 async function main_test() {
   console.log('Fetching all station data...');
-  const allStations = await fetchAllStationsData();
+  const allStations = await fetchStationData();
   
   console.log('\n=== STATIONS SUMMARY ===');
   console.log(`Total Stations: ${allStations.length}`);

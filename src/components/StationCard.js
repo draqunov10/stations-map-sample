@@ -78,7 +78,26 @@ const StationCard = ({ station, stationName, location, status, transmitterReadin
                     </span>
                   </div>
                   <div className="text-gray-400 text-xs mt-1">
-                    {pump.Capacity} • {pump.Controller}
+                    {pump["Capacity (HP)"]} • {pump.Controller}
+                  </div>
+                  {/* Additional pump readings */}
+                  <div className="text-gray-500 text-xs mt-1 space-y-0.5">
+                    <div className="flex justify-between">
+                      <span>Voltage:</span>
+                      <span className="text-gray-300">{pump["Voltage Reading"] || '0'}V</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Current:</span>
+                      <span className="text-gray-300">{pump["Current Reading"] || '0'}A</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Frequency:</span>
+                      <span className="text-gray-300">{pump["Frequency Reading"] || '0'}Hz</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Runtime:</span>
+                      <span className="text-gray-300">{pump["Running Hrs"] || '0'}h</span>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -89,17 +108,23 @@ const StationCard = ({ station, stationName, location, status, transmitterReadin
           <div className="mb-3 pb-3 border-b border-gray-700">
             <span className="text-gray-300 text-xs font-medium block mb-2">Transmitters</span>
             <div className="space-y-1">
-              {station.equipment.filter(eq => eq.Type === 'In-Line').map((transmitter, idx) => (
-                <div key={idx} className="bg-gray-750 border border-gray-600 rounded px-2 py-1 text-xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">{transmitter.Name}</span>
-                    <span className="text-blue-400 font-medium px-1 border border-blue-500 rounded">
-                      {transmitter.Reading || '0'} {transmitter.Range ? transmitter.Range.split('-')[1] : ''}
-                    </span>
+              {station.equipment.filter(eq => eq.Type === 'In-Line').map((transmitter, idx) => {
+                // Extract unit from range (e.g., "0-145 psi" -> "psi", "0-100lps" -> "lps")
+                const unit = transmitter.Range ? transmitter.Range.split(' ')[1]?.trim() || transmitter.Range.split(' ')[1] || '' : '';
+                const reading = transmitter.Reading || '0';
+                
+                return (
+                  <div key={idx} className="bg-gray-750 border border-gray-600 rounded px-2 py-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">{transmitter.Name}</span>
+                      <span className="text-blue-400 font-medium px-1 border border-blue-500 rounded">
+                        {reading}{unit && ` ${unit}`}
+                      </span>
+                    </div>
+                    <div className="text-gray-400 text-xs">Range: {transmitter.Range || 'N/A'}</div>
                   </div>
-                  <div className="text-gray-400 text-xs">Range: {transmitter.Range || 'N/A'}</div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -142,15 +167,15 @@ StationCard.propTypes = {
       Type: PropTypes.string,
       Range: PropTypes.string,
       Reading: PropTypes.string,
-      Capacity: PropTypes.string,
+      "Capacity (HP)": PropTypes.string,
       Controller: PropTypes.string,
-      "Rated Voltage": PropTypes.string,
+      "Rated Voltage (V)": PropTypes.string,
       "Rated Current (A)": PropTypes.string,
       "Voltage Reading": PropTypes.string,
       "Current Reading": PropTypes.string,
       "Frequency Reading": PropTypes.string,
       Status: PropTypes.string,
-      "Last Runtime": PropTypes.string,
+      "Last Runtime (HH:MM:SS)": PropTypes.string,
       "Running Hrs": PropTypes.string,
       "Number of Start": PropTypes.string,
     })).isRequired,
