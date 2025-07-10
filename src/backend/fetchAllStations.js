@@ -83,12 +83,47 @@ export async function fetchAllStationsData(spreadsheetId, maxRows = 50) {
             if (cellValue) hasData = true;
           }
           
-          // Only add equipment that has a name
+          // Only add equipment that has a name and is not a duplicate
           if (hasData && equipment.Name && equipment.Name.trim()) {
-            stationData.equipment.push(equipment);
+            // Check if this equipment already exists in the station
+            const existingEquipment = stationData.equipment.find(eq => 
+              eq.Name && eq.Name.trim() === equipment.Name.trim()
+            );
+            
+            if (!existingEquipment) {
+              stationData.equipment.push(equipment);
+            }
+          }
+          
+          // Stop processing if we hit 10+ consecutive empty rows
+          if (!hasData) {
+            let emptyRowCount = 1;
+            for (let checkRow = row + 1; checkRow < Math.min(row + 10, rowsToProcess); checkRow++) {
+              let hasDataInRow = false;
+              for (let checkCol = 0; checkCol < headers.length; checkCol++) {
+                const checkCell = sheet.getCell(checkRow, checkCol);
+                if (checkCell.value) {
+                  hasDataInRow = true;
+                  break;
+                }
+              }
+              if (!hasDataInRow) {
+                emptyRowCount++;
+              } else {
+                break;
+              }
+            }
+            
+            // If we found 5+ consecutive empty rows, stop processing
+            if (emptyRowCount >= 5) {
+              break;
+            }
           }
         }
       }
+      
+      // Clean and deduplicate equipment data
+      stationData.equipment = cleanEquipmentData(stationData.equipment);
       
       allStations.push(stationData);
       console.log(`  - Found ${stationData.equipment.length} equipment items`);
@@ -100,6 +135,32 @@ export async function fetchAllStationsData(spreadsheetId, maxRows = 50) {
     console.error('Error fetching all stations data:', error);
     throw error;
   }
+}
+
+// Helper function to clean and deduplicate equipment data
+function cleanEquipmentData(equipment) {
+  const cleaned = [];
+  const seenNames = new Set();
+  
+  for (const item of equipment) {
+    if (!item.Name || !item.Name.trim()) continue;
+    
+    const name = item.Name.trim();
+    if (seenNames.has(name)) continue;
+    
+    seenNames.add(name);
+    
+    // Clean up the equipment object
+    const cleanedItem = {};
+    for (const [key, value] of Object.entries(item)) {
+      // Only include non-empty values or convert empty strings to null for better JSON
+      cleanedItem[key] = value && value.toString().trim() ? value : null;
+    }
+    
+    cleaned.push(cleanedItem);
+  }
+  
+  return cleaned;
 }
 
 // Main execution
