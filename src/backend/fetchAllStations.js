@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { JWT } from 'google-auth-library'
 import { GoogleSpreadsheet } from 'google-spreadsheet';
 import creds from './endless-fire-460619-i4-a2e8c1a5298a.json' with { type: 'json' };
